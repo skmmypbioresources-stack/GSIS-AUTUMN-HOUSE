@@ -323,16 +323,85 @@ const HOSDashboard: React.FC<{
 </div>
 
         <div className="overflow-x-auto">
-          <table className="w-full text-left">
-            <thead className="bg-orange-50/50 text-[10px] font-black text-slate-400 uppercase tracking-[0.25em]"><tr className="border-b border-orange-50"><th className="px-10 py-6">Mentor</th><th className="px-10 py-6">Status Counts</th><th className="px-10 py-6">Focus Area</th><th className="px-10 py-6">Key Discussion</th></tr></thead>
-            <tbody className="divide-y divide-orange-50">
-              {filtered.map(record => (
-                <tr key={record.id} className="hover:bg-orange-50/10 transition-all"><td className="px-10 py-8"><div className="w-10 h-10 bg-orange-950 text-white rounded-xl flex items-center justify-center font-black text-xs uppercase shadow-md">{record.teacherInitials}</div></td><td className="px-10 py-8"><div className="flex gap-4"><div className="flex flex-col"><span className="text-[9px] font-black text-emerald-600 uppercase">Present</span><span className="text-xl font-black text-emerald-700">{record.attendance.filter(a => a.status === AttendanceStatus.PRESENT).length}</span></div><div className="flex flex-col"><span className="text-[9px] font-black text-rose-600 uppercase">Absent</span><span className="text-xl font-black text-rose-700">{record.attendance.filter(a => a.status === AttendanceStatus.ABSENT).length}</span></div></div></td><td className="px-10 py-8"><span className="px-4 py-2 bg-orange-50 text-orange-700 rounded-xl text-xs font-black uppercase tracking-tight shadow-inner">{record.focusArea || 'NOT SET'}</span></td><td className="px-10 py-8"><p className="text-sm font-medium text-slate-500 line-clamp-2 italic leading-relaxed max-w-sm">"{record.keyDiscussion}"</p></td></tr>
-              ))}
-              {filtered.length === 0 && <tr><td colSpan={4} className="px-10 py-32 text-center text-orange-300 font-bold uppercase tracking-widest opacity-30">Awaiting Mentor Submissions</td></tr>}
-            </tbody>
-          </table>
-        </div>
+  <table className="w-full text-left">
+    <thead className="bg-orange-50/50 text-[10px] font-black text-slate-400 uppercase tracking-[0.25em]">
+      <tr className="border-b border-orange-50">
+        <th className="px-10 py-6">Mentor</th>
+        <th className="px-10 py-6">Status Counts</th>
+        <th className="px-10 py-6">Focus Area</th>
+        <th className="px-10 py-6">Key Discussion</th>
+      </tr>
+    </thead>
+
+    <tbody className="divide-y divide-orange-50">
+      {filtered.map(record => (
+        <tr key={record.id} className="hover:bg-orange-50/10 transition-all">
+          
+          <td className="px-10 py-8">
+            <div className="w-10 h-10 bg-orange-950 text-white rounded-xl flex items-center justify-center font-black text-xs uppercase shadow-md">
+              {record.teacherInitials}
+            </div>
+          </td>
+
+          <td className="px-10 py-8">
+            <div className="flex gap-6">
+              
+              <div className="flex flex-col">
+                <span className="text-[9px] font-black text-emerald-600 uppercase">Present</span>
+                <span className="text-xl font-black text-emerald-700">
+                  {record.attendance.filter(a => a.status === AttendanceStatus.PRESENT).length}
+                </span>
+              </div>
+
+              <div className="flex flex-col">
+                <span className="text-[9px] font-black text-rose-600 uppercase">Absent</span>
+                <span className="text-xl font-black text-rose-700">
+                  {record.attendance.filter(a => a.status === AttendanceStatus.ABSENT).length}
+                </span>
+              </div>
+
+              <div className="flex flex-col">
+                <span className="text-[9px] font-black text-amber-600 uppercase">Late</span>
+                <span className="text-xl font-black text-amber-700">
+                  {record.attendance.filter(a => a.status === AttendanceStatus.LATE).length}
+                </span>
+              </div>
+
+              <div className="flex flex-col">
+                <span className="text-[9px] font-black text-sky-600 uppercase">Excused</span>
+                <span className="text-xl font-black text-sky-700">
+                  {record.attendance.filter(a => a.status === AttendanceStatus.EXCUSED).length}
+                </span>
+              </div>
+
+            </div>
+          </td>
+
+          <td className="px-10 py-8">
+            <span className="px-4 py-2 bg-orange-50 text-orange-700 rounded-xl text-xs font-black uppercase tracking-tight shadow-inner">
+              {record.focusArea || 'NOT SET'}
+            </span>
+          </td>
+
+          <td className="px-10 py-8">
+            <p className="text-sm font-medium text-slate-500 line-clamp-2 italic leading-relaxed max-w-sm">
+              "{record.keyDiscussion}"
+            </p>
+          </td>
+
+        </tr>
+      ))}
+
+      {filtered.length === 0 && (
+        <tr>
+          <td colSpan={4} className="px-10 py-32 text-center text-orange-300 font-bold uppercase tracking-widest opacity-30">
+            Awaiting Mentor Submissions
+          </td>
+        </tr>
+      )}
+    </tbody>
+  </table>
+</div>
       </div>
     </div>
   );
