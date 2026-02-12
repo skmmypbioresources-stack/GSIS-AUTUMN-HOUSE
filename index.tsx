@@ -153,15 +153,40 @@ const myStudents = useMemo(() => {
         setFocusArea('');
         setActivities('');
         setDiscussion('');
-        setAttendance(myStudents.map(s => ({ studentId: s.id, status: AttendanceStatus.PRESENT })));
+        setAttendance(
+  myStudents.map(s => ({
+    studentId: s.id,
+    status: AttendanceStatus.PRESENT,
+    remarks: ""
+  }))
+);
+
       }
     });
     return () => unsubscribe();
   }, [user.id, month, week, myStudents]);
 
-  const handleAttendance = (studentId: string, status: AttendanceStatus) => {
-    setAttendance(prev => prev.map(a => a.studentId === studentId ? { ...a, status } : a));
-  };
+ const handleAttendance = (studentId: string, status: AttendanceStatus) => {
+  setAttendance(prev =>
+    prev.map(a =>
+      a.studentId === studentId
+        ? { ...a, status }
+        : a
+    )
+  );
+};
+
+// ✅ ADD THIS BELOW (do not replace the above)
+const handleRemark = (studentId: string, text: string) => {
+  setAttendance(prev =>
+    prev.map(a =>
+      a.studentId === studentId
+        ? { ...a, remarks: text }
+        : a
+    )
+  );
+};
+
 
   const onShare = async () => {
     setIsSaving(true);
@@ -209,56 +234,174 @@ const myStudents = useMemo(() => {
             <h3 className="text-xs font-black text-orange-950 uppercase tracking-[0.2em] px-2">Mentee Attendance (Strength: {myStudents.length})</h3>
             <div className="space-y-3">
               {myStudents.map(student => {
-                const current = attendance.find(a => a.studentId === student.id)?.status;
-                return (
-                  <div key={student.id} className="flex flex-col sm:flex-row sm:items-center justify-between p-6 rounded-3xl bg-orange-50/30 border-2 border-transparent hover:border-orange-100 transition-all group">
-                    <div className="flex items-center gap-4">
-                      <div className="w-12 h-12 bg-white rounded-2xl flex items-center justify-center font-black text-orange-300 border border-orange-50 group-hover:bg-orange-950 group-hover:text-white transition-all">{student.name.charAt(0)}</div>
-                      <div className="flex flex-col">
-                        <span className="font-bold text-orange-950 text-lg">{student.name}</span>
-                        <span className="text-[9px] font-black text-orange-400 uppercase tracking-widest">Grade {student.grade}</span>
-                      </div>
-                    </div>
-                    <div className="flex gap-1.5 mt-4 sm:mt-0 overflow-x-auto pb-1 sm:pb-0 scrollbar-hide">
-                      {Object.values(AttendanceStatus).map(s => <AttendanceBadge key={s} status={s} active={current === s} onClick={() => handleAttendance(student.id, s)} />)}
-                    </div>
-                  </div>
-                );
-              })}
+  const current = attendance.find(a => a.studentId === student.id)?.status;
+  const remark = attendance.find(a => a.studentId === student.id)?.remarks || "";
+
+  return (
+    <div key={student.id} className="flex flex-col p-6 rounded-3xl bg-orange-50/30 border-2 border-transparent hover:border-orange-100 transition-all group space-y-4">
+
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between">
+        <div className="flex items-center gap-4">
+          <div className="w-12 h-12 bg-white rounded-2xl flex items-center justify-center font-black text-orange-300 border border-orange-50 group-hover:bg-orange-950 group-hover:text-white transition-all">
+            {student.name.charAt(0)}
+          </div>
+          <div className="flex flex-col">
+            <span className="font-bold text-orange-950 text-lg">{student.name}</span>
+            <span className="text-[9px] font-black text-orange-400 uppercase tracking-widest">
+              Grade {student.grade}
+            </span>
+          </div>
+        </div>
+
+        <div className="flex gap-1.5 mt-4 sm:mt-0 overflow-x-auto pb-1 sm:pb-0 scrollbar-hide">
+          {Object.values(AttendanceStatus).map(s => (
+            <AttendanceBadge
+              key={s}
+              status={s}
+              active={current === s}
+              onClick={() => handleAttendance(student.id, s)}
+            />
+          ))}
+        </div>
+      </div>
+
+      {/* ✅ Individual Student Feedback */}
+      <div>
+        <label className="block text-[9px] font-black text-orange-400 uppercase tracking-widest mb-2">
+          Individual Feedback
+        </label>
+        <textarea
+          value={remark}
+          onChange={(e) => handleRemark(student.id, e.target.value)}
+          placeholder="Write feedback specific to this student..."
+          className="w-full p-4 bg-white border-2 border-orange-50 focus:border-orange-400 rounded-2xl outline-none transition-all text-sm font-medium text-orange-950 resize-none"
+          rows={2}
+        />
+      </div>
+
+    </div>
+  );
+})}
             </div>
           </div>
         </div>
+
         <div className="bg-white p-8 rounded-[2.5rem] shadow-sm border border-orange-100 space-y-8">
-          <h3 className="text-2xl font-black text-orange-950 flex items-center gap-3"><Icons.Clipboard /> Observation Data</h3>
+          <h3 className="text-2xl font-black text-orange-950 flex items-center gap-3">
+            <Icons.Clipboard /> Observation Data
+          </h3>
+
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="md:col-span-2">
-              <label className="block text-[10px] font-black text-orange-900 mb-3 uppercase tracking-widest ml-1">Focus Area</label>
-              <input type="text" value={focusArea} onChange={e => setFocusArea(e.target.value)} placeholder="e.g. Academic Consistency" className="w-full p-5 bg-orange-50/50 border-2 border-orange-50 focus:border-orange-500 rounded-[1.25rem] outline-none transition-all font-bold text-orange-950" />
+              <label className="block text-[10px] font-black text-orange-900 mb-3 uppercase tracking-widest ml-1">
+                Focus Area
+              </label>
+              <input
+                type="text"
+                value={focusArea}
+                onChange={e => setFocusArea(e.target.value)}
+                placeholder="e.g. Academic Consistency"
+                className="w-full p-5 bg-orange-50/50 border-2 border-orange-50 focus:border-orange-500 rounded-[1.25rem] outline-none transition-all font-bold text-orange-950"
+              />
             </div>
-            <div><label className="block text-[10px] font-black text-orange-900 mb-3 uppercase tracking-widest ml-1">Activities Volunteered</label><textarea rows={3} value={activities} onChange={e => setActivities(e.target.value)} placeholder="Roles taken by students..." className="w-full p-5 bg-orange-50/50 border-2 border-orange-50 focus:border-orange-500 rounded-[1.25rem] outline-none transition-all font-bold text-orange-950 resize-none" /></div>
-            <div><label className="block text-[10px] font-black text-orange-900 mb-3 uppercase tracking-widest ml-1">Critical Observations</label><textarea rows={3} value={discussion} onChange={e => setDiscussion(e.target.value)} placeholder="Session summary..." className="w-full p-5 bg-orange-50/50 border-2 border-orange-50 focus:border-orange-500 rounded-[1.25rem] outline-none transition-all font-bold text-orange-950 resize-none" /></div>
+
+            <div>
+              <label className="block text-[10px] font-black text-orange-900 mb-3 uppercase tracking-widest ml-1">
+                Activities Volunteered
+              </label>
+              <textarea
+                rows={3}
+                value={activities}
+                onChange={e => setActivities(e.target.value)}
+                placeholder="Roles taken by students..."
+                className="w-full p-5 bg-orange-50/50 border-2 border-orange-50 focus:border-orange-500 rounded-[1.25rem] outline-none transition-all font-bold text-orange-950 resize-none"
+              />
+            </div>
+
+            <div>
+              <label className="block text-[10px] font-black text-orange-900 mb-3 uppercase tracking-widest ml-1">
+                Critical Observations
+              </label>
+              <textarea
+                rows={3}
+                value={discussion}
+                onChange={e => setDiscussion(e.target.value)}
+                placeholder="Session summary..."
+                className="w-full p-5 bg-orange-50/50 border-2 border-orange-50 focus:border-orange-500 rounded-[1.25rem] outline-none transition-all font-bold text-orange-950 resize-none"
+              />
+            </div>
           </div>
-          <button onClick={onShare} disabled={isSaving} className="w-full py-6 autumn-gradient text-white font-black rounded-[1.5rem] flex items-center justify-center gap-3 shadow-xl shadow-orange-100 transition-all active:scale-[0.98] text-xl uppercase tracking-widest disabled:opacity-50">
+
+          <button
+            onClick={onShare}
+            disabled={isSaving}
+            className="w-full py-6 autumn-gradient text-white font-black rounded-[1.5rem] flex items-center justify-center gap-3 shadow-xl shadow-orange-100 transition-all active:scale-[0.98] text-xl uppercase tracking-widest disabled:opacity-50"
+          >
             {isSaving ? <Icons.Loader /> : <><Icons.Share /> Share Live with House</>}
           </button>
         </div>
       </div>
+
       <div className="lg:col-span-4 space-y-6">
-        <h3 className="text-xl font-black text-orange-950 px-2 flex items-center gap-3"><Icons.Eye /> House Timeline</h3>
+        <h3 className="text-xl font-black text-orange-950 px-2 flex items-center gap-3">
+          <Icons.Eye /> House Timeline
+        </h3>
+
         <div className="space-y-4 max-h-[1200px] overflow-y-auto pr-2 scrollbar-hide">
           {visibleRecords.sort((a,b) => b.timestamp - a.timestamp).map(record => (
 
             <div key={record.id} className="bg-white p-6 rounded-3xl border border-orange-50 shadow-sm border-l-8 border-l-orange-500">
+
               <div className="flex justify-between items-start mb-4">
-                <div><div className="px-2 py-0.5 bg-orange-50 text-orange-600 text-[9px] font-black uppercase rounded mb-1 inline-block">Mentor: {record.teacherInitials}</div><div className="text-lg font-black text-orange-950">{record.month} <span className="text-orange-300">•</span> W{record.week}</div></div>
-                <div className="text-[9px] font-black text-slate-300 flex items-center gap-1 uppercase"><Icons.Clock /> {new Date(record.timestamp).toLocaleDateString()}</div>
+                <div>
+                  <div className="px-2 py-0.5 bg-orange-50 text-orange-600 text-[9px] font-black uppercase rounded mb-1 inline-block">
+                    Mentor: {record.teacherInitials}
+                  </div>
+                  <div className="text-lg font-black text-orange-950">
+                    {record.month} <span className="text-orange-300">•</span> W{record.week}
+                  </div>
+                </div>
+                <div className="text-[9px] font-black text-slate-300 flex items-center gap-1 uppercase">
+                  <Icons.Clock /> {new Date(record.timestamp).toLocaleDateString()}
+                </div>
               </div>
-              <p className="text-sm font-medium text-slate-500 bg-slate-50 p-4 rounded-2xl italic mb-4 leading-relaxed">"{record.keyDiscussion || 'Observation shared.'}"</p>
-              <div className="grid grid-cols-3 gap-2">
-                <div className="bg-emerald-50 p-2 rounded-xl text-center"><div className="text-[10px] font-black text-emerald-600 uppercase">P</div><div className="font-black text-emerald-700">{record.attendance.filter(a => a.status === AttendanceStatus.PRESENT).length}</div></div>
-                <div className="bg-rose-50 p-2 rounded-xl text-center"><div className="text-[10px] font-black text-rose-600 uppercase">A</div><div className="font-black text-rose-700">{record.attendance.filter(a => a.status === AttendanceStatus.ABSENT).length}</div></div>
-                <div className="bg-amber-50 p-2 rounded-xl text-center"><div className="text-[10px] font-black text-amber-600 uppercase">L</div><div className="font-black text-amber-700">{record.attendance.filter(a => a.status === AttendanceStatus.LATE).length}</div></div>
+
+              <p className="text-sm font-medium text-slate-500 bg-slate-50 p-4 rounded-2xl italic mb-4 leading-relaxed">
+                "{record.keyDiscussion || 'Observation shared.'}"
+              </p>
+
+              <div className="grid grid-cols-4 gap-2">
+
+                <div className="bg-emerald-50 p-2 rounded-xl text-center">
+                  <div className="text-[10px] font-black text-emerald-600 uppercase">P</div>
+                  <div className="font-black text-emerald-700">
+                    {record.attendance.filter(a => a.status === AttendanceStatus.PRESENT).length}
+                  </div>
+                </div>
+
+                <div className="bg-rose-50 p-2 rounded-xl text-center">
+                  <div className="text-[10px] font-black text-rose-600 uppercase">A</div>
+                  <div className="font-black text-rose-700">
+                    {record.attendance.filter(a => a.status === AttendanceStatus.ABSENT).length}
+                  </div>
+                </div>
+
+                <div className="bg-amber-50 p-2 rounded-xl text-center">
+                  <div className="text-[10px] font-black text-amber-600 uppercase">L</div>
+                  <div className="font-black text-amber-700">
+                    {record.attendance.filter(a => a.status === AttendanceStatus.LATE).length}
+                  </div>
+                </div>
+
+                <div className="bg-sky-50 p-2 rounded-xl text-center">
+                  <div className="text-[10px] font-black text-sky-600 uppercase">E</div>
+                  <div className="font-black text-sky-700">
+                    {record.attendance.filter(a => a.status === AttendanceStatus.EXCUSED).length}
+                  </div>
+                </div>
+
               </div>
+
             </div>
           ))}
         </div>
@@ -266,6 +409,7 @@ const myStudents = useMemo(() => {
     </div>
   );
 };
+
 
 const HOSDashboard: React.FC<{ 
   teachers: Teacher[];

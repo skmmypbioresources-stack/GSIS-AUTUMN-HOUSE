@@ -22,7 +22,9 @@ export interface Teacher {
 export interface StudentAttendance {
   studentId: string;
   status: AttendanceStatus;
+  remarks?: string;   // ✅ NEW FIELD
 }
+
 
 export interface MeetingRecord {
   id: string;
